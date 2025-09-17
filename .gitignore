@@ -519,3 +519,12 @@ packages/
 # OS junk
 Thumbs.db
 .DS_Store
+
+# Ignore environment-specific appsettings for all services/projects
+**/appsettings.Development.json
+**/appsettings.Staging.json
+**/appsettings.Production.json
+
+# Ignore local-only configs (not for repo)
+**/appsettings.Local.json
+**/secrets.json
