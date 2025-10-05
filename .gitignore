@@ -519,3 +519,6 @@ packages/
 # OS junk
 Thumbs.db
 .DS_Store
+
+# Ignore temporary EF Core migrations (during dev)
+Services/**/Migrations/
