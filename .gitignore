@@ -520,6 +520,10 @@ packages/
 Thumbs.db
 .DS_Store
 
+
+# Ignore temporary EF Core migrations (during dev)
+Services/**/Migrations/
+=======
 # Ignore environment-specific appsettings for all services/projects
 **/appsettings.Development.json
 **/appsettings.Staging.json
