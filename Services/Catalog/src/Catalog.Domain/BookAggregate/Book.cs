@@ -10,8 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Catalog.Domain.BookAggregate;
-    public class Book : AggregateRoot
-    {
+    public class Book : AggregateRoot, IAuditable
+{
  
 
     public string Title { get; private set; } = null!;
@@ -24,9 +24,11 @@ namespace Catalog.Domain.BookAggregate;
    
     public Guid CategoryId { get; private set; }
 
-    public DateTime CreatedAt { get; private set; }
-    public DateTime? UpdatedAt { get; private set; }
+    
     public ICollection<BookAuthor> BookAuthors { get; private set; } = new List<BookAuthor>();
+    // IAuditable props
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     private Book() { } // EF
 

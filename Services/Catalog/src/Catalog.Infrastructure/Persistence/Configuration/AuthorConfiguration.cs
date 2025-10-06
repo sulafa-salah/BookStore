@@ -18,7 +18,8 @@ namespace Catalog.Infrastructure.Persistence.Configuration;
         b.Property(x => x.Name).IsRequired().HasMaxLength(150);
         b.Property(x => x.Biography).IsRequired().HasMaxLength(1000);
         b.Property(x => x.IsActive).IsRequired();
-
+        b.Property(x => x.CreatedAt).IsRequired();
+        b.Property(x => x.UpdatedAt);
         b.HasIndex(x => x.Name).IsUnique(); 
     }
     }
