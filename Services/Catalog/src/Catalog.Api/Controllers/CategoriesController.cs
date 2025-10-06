@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Categories.Commands.CreateCategory;
+using Catalog.Application.Categories.Commands.UpdateCategory;
 using Catalog.Application.Categories.Queries.GetCategory;
 using Catalog.Application.Categories.Queries.ListCategories;
 using Catalog.Application.Common.Mappings;
@@ -42,7 +43,7 @@ public class CategoriesController : ApiController
         var getCategoryResult = await _mediator.Send(command);
         return getCategoryResult.Match(
             c => Ok(new CategoryResponse(c.Id, c.Name, c.Description)),
-            errors => Problem(errors) // your ApiController maps NotFound → 404, etc.
+            errors => Problem(errors) 
         );
     }
 
@@ -57,6 +58,18 @@ public class CategoriesController : ApiController
         paged => Ok(paged.ToResponse(c =>
       new CategoryResponse(c.Id, c.Name, c.Description))),
     errors => Problem(errors)
+        );
+    }
+
+    [HttpPut("{categoryId:guid}")]
+    public async Task<IActionResult> Update(Guid categoryId, [FromBody] UpdateCategoryRequest request, CancellationToken ct)
+    {
+        var command = new UpdateCategoryCommand(categoryId, request.Name, request.Description, request.IsActive);
+        var result = await _mediator.Send(command, ct);
+
+        return result.Match(
+            c => Ok(new CategoryResponse(c.Id, c.Name, c.Description)),         
+             errors => Problem(errors) 
         );
     }
 }
