@@ -34,12 +34,8 @@ namespace Catalog.Infrastructure.Persistence.Configuration;
         });
 
 
-        b.Property(x => x.CreatedAt)
-    .HasDefaultValueSql("GETUTCDATE()")
-    .ValueGeneratedOnAdd();
-
-        b.Property(x => x.UpdatedAt)
-            .IsRequired(false);
+        b.Property(x => x.CreatedAt).IsRequired();
+        b.Property(x => x.UpdatedAt);
 
         b.Property(x => x.CategoryId).IsRequired();
             b.HasIndex(x => x.CategoryId);

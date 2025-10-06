@@ -26,7 +26,10 @@ namespace Catalog.Infrastructure.Persistence.Configuration;
             b.Property(x => x.IsActive)
                 .IsRequired();
 
-            // unique index on Name
-            b.HasIndex(x => x.Name).IsUnique();
+        b.Property(x => x.CreatedAt).IsRequired();
+        b.Property(x => x.UpdatedAt);
+
+        // unique index on Name
+        b.HasIndex(x => x.Name).IsUnique();
         }
     }

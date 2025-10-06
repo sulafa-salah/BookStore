@@ -8,12 +8,16 @@ using System.Threading.Tasks;
 
 namespace Catalog.Domain.AuthorAggregate;
 
-    public class Author: AggregateRoot
+    public class Author : AggregateRoot, IAuditable
 {
    
     public string Name { get; private set; } = null!;
     public string Biography { get; private set; } = null!;
     public bool IsActive { get; private set; }
+
+    // IAuditable props
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     public ICollection<BookAuthor> BookAuthors { get; private set; } = new List<BookAuthor>();
     private Author() { }
     public Author(string name, string bio, bool isActive = true, Guid? id = null) : base(id ?? Guid.NewGuid())
