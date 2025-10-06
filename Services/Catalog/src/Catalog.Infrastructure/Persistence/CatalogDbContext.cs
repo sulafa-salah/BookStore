@@ -3,6 +3,7 @@ using Catalog.Application.Common.Interfaces;
 using Catalog.Domain.AuthorAggregate;
 using Catalog.Domain.BookAggregate;
 using Catalog.Domain.CategoryAggreate;
+using Catalog.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -32,6 +33,20 @@ namespace Catalog.Infrastructure.Persistence
 
         public async Task CommitChangesAsync()
         {
+            var now = DateTime.UtcNow;
+
+            foreach (var entry in ChangeTracker.Entries<IAuditable>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = now;
+                    entry.Entity.UpdatedAt = null;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = now;
+                }
+            }
             await SaveChangesAsync();
         }
     }
