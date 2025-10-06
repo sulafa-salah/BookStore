@@ -1,11 +1,12 @@
-﻿using Catalog.Contracts.Categories;
+﻿using Catalog.Application.Categories.Commands.CreateCategory;
+using Catalog.Application.Categories.Queries.GetCategory;
+using Catalog.Contracts.Categories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Catalog.Application.Categories.Commands.CreateCategory;
+using System;
 
-namespace Catalog.Api.Controllers
-{
+namespace Catalog.Api.Controllers;
     [Route("api/[controller]")]
     public class CategoriesController : ApiController
     {
@@ -25,9 +26,22 @@ namespace Catalog.Api.Controllers
 
             var createCategoryResult = await _mediator.Send(command);
 
-            return createCategoryResult.MatchFirst(
+            return createCategoryResult.Match(
                 category => Ok(new CategoryResponse(category.Id, category.Name, category.Description)),
-                error => Problem());
+                Problem);
         }
+
+    [HttpGet("{categoryId:guid}")]
+    public async Task<IActionResult> GetById(Guid categoryId)
+    {
+       
+        var command = new GetCategoryQuery(categoryId);
+
+        var getCategoryResult = await _mediator.Send(command);
+        return getCategoryResult.Match(
+            c => Ok(new CategoryResponse(c.Id, c.Name, c.Description)),
+            errors => Problem(errors) // your ApiController maps NotFound → 404, etc.
+        );
     }
 }
+
