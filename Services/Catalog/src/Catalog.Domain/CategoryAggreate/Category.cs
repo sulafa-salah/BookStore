@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace Catalog.Domain.CategoryAggreate;
 
-    public  class Category : AggregateRoot
-    {
+    public  class Category : AggregateRoot, IAuditable
+{
         public string Name { get;  } = null!;
     public string Description { get; } = null!;
     public bool IsActive { get; private set; }
-
+    // IAuditable props
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public Category(  
             string name,

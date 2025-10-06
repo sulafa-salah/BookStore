@@ -14,5 +14,10 @@ namespace Catalog.Application.Common.Interfaces
         Task<bool> ExistsByNameAsync(string name, CancellationToken ct);
         Task<Category?> GetByIdAsync(Guid id, CancellationToken ct);
 
+        Task<(IReadOnlyList<Category> Items, int TotalCount)> ListCategoriesAsync(
+         int pageNumber, int pageSize,
+         string? search, string? sortBy, bool desc,
+         CancellationToken ct);
+
     }
 }
