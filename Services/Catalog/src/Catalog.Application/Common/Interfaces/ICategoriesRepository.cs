@@ -18,6 +18,7 @@ namespace Catalog.Application.Common.Interfaces
          int pageNumber, int pageSize,
          string? search, string? sortBy, bool desc,
          CancellationToken ct);
+        Task<bool> ExistsByNameExcludingIdAsync(string name, Guid excludeId, CancellationToken ct);
 
     }
 }

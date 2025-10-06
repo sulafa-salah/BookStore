@@ -9,8 +9,8 @@ namespace Catalog.Domain.CategoryAggreate;
 
     public  class Category : AggregateRoot, IAuditable
 {
-        public string Name { get;  } = null!;
-    public string Description { get; } = null!;
+        public string Name { get; private set; } = null!;
+    public string Description { get; private set; } = null!;
     public bool IsActive { get; private set; }
     // IAuditable props
     public DateTime CreatedAt { get; set; }
@@ -28,7 +28,8 @@ namespace Catalog.Domain.CategoryAggreate;
 
     }
     private Category() { }
-
+    public void Update(string name, string description, bool isActive)
+    { Name = name; Description = description; IsActive = isActive; }
     public void Activate() => IsActive = true;
     public void Deactivate() => IsActive = false;
 }

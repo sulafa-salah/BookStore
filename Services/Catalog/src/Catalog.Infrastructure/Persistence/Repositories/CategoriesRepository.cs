@@ -46,5 +46,7 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
 
         return (items, total);
     }
+    public async Task<bool> ExistsByNameExcludingIdAsync(string name, Guid excludeId, CancellationToken ct) =>
+   await _dbContext.Categories.AnyAsync(c => c.Id != excludeId && c.Name.ToLower() == name.ToLower(), ct);
 
 }
