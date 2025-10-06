@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Catalog.Application.Common.Behaviors;
+using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 
 
 
@@ -11,9 +13,9 @@ namespace Catalog.Application
             services.AddMediatR(options =>
             {
                 options.RegisterServicesFromAssemblyContaining(typeof(DependencyInjection));
-              
+                options.AddOpenBehavior(typeof(ValidationBehavior<,>));
             });
-           
+            services.AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
 
             return services;
         }

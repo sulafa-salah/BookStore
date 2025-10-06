@@ -4,3 +4,9 @@ GET {{Catalog.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+POST /api/categories
+{
+  "name": "Fiction",
+  "description": "All fiction books"
+
+}
