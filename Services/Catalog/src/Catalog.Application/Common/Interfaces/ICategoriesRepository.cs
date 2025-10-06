@@ -12,6 +12,7 @@ namespace Catalog.Application.Common.Interfaces
         Task AddCategoryAsync(Category category, CancellationToken ct);
        
         Task<bool> ExistsByNameAsync(string name, CancellationToken ct);
-       
+        Task<Category?> GetByIdAsync(Guid id, CancellationToken ct);
+
     }
 }

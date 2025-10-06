@@ -19,7 +19,8 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
         public Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
             => _dbContext.Categories.AnyAsync(c => c.Name == name, ct);
 
-      
 
-      
+    public Task<Category?> GetByIdAsync(Guid id, CancellationToken ct) =>
+    _dbContext.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
+
 }
