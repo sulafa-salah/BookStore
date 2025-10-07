@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Authors\Queries\" />
+  </ItemGroup>
+
 </Project>
