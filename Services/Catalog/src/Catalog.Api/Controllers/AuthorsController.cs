@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Authors.Commands.CreateAuthor;
+using Catalog.Application.Authors.Commands.UpdateAuthor;
 using Catalog.Application.Authors.Queries;
 using Catalog.Application.Authors.Queries.GetAuthor;
 using Catalog.Application.Common.Mappings;
@@ -36,4 +37,9 @@ namespace Catalog.Api.Controllers;
     public async Task<IActionResult> List([FromQuery] GetAuthorsRequest req, CancellationToken ct)
        => (await _mediator.Send(new ListAuthorsQuery(req.PageNumber, req.PageSize, req.Search, req.SortBy, req.SortDir), ct))
            .Match(paged => Ok(paged.ToResponse(a => new AuthorResponse(a.Id, a.Name, a.Biography,a.IsActive))), errors => Problem(errors));
+
+    [HttpPut("{authorId:guid}")]
+    public async Task<IActionResult> Update(Guid authorId, UpdateAuthorRequest request, CancellationToken ct)
+     => (await _mediator.Send(new UpdateAuthorCommand(authorId, request.Name, request.bio, request.IsActive), ct))
+         .Match(a => Ok(new AuthorResponse(a.Id, a.Name, a.Biography,a.IsActive)), errors => Problem(errors));
 }
