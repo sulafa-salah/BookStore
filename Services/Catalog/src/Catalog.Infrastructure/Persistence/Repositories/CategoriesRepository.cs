@@ -49,4 +49,10 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
     public async Task<bool> ExistsByNameExcludingIdAsync(string name, Guid excludeId, CancellationToken ct) =>
    await _dbContext.Categories.AnyAsync(c => c.Id != excludeId && c.Name.ToLower() == name.ToLower(), ct);
 
+    public Task UpdateAsync(Category category)
+    {
+        _dbContext.Update(category);
+        return Task.CompletedTask;
+    }
+
 }

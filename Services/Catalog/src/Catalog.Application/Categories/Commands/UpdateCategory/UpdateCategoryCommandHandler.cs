@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Common.Interfaces;
+using Catalog.Domain.AuthorAggregate;
 using Catalog.Domain.CategoryAggreate;
 using ErrorOr;
 using MediatR;
@@ -29,8 +30,9 @@ namespace Catalog.Application.Categories.Commands.UpdateCategory;
             var exists = await _categoriesRepository.ExistsByNameExcludingIdAsync(newName, r.Id, ct);
             if (exists) return CategoryErrors.DuplicateName;
 
-            category.Update(newName, newDesc, r.IsActive);  
-            await _unitOfWork.CommitChangesAsync();
+            category.Update(newName, newDesc, r.IsActive);
+        await _categoriesRepository.UpdateAsync(category);
+        await _unitOfWork.CommitChangesAsync();
 
             return category;
         }
