@@ -24,5 +24,8 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
        => await _dbContext.Authors.AddAsync(author, ct);
     public Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
        => _dbContext.Authors.AnyAsync(c => c.Name == name, ct);
+
+    public Task<Author?> GetByIdAsync(Guid id, CancellationToken ct) =>
+   _dbContext.Authors.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
 }
 
