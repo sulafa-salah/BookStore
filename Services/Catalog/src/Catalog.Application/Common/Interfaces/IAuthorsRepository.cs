@@ -13,4 +13,6 @@ public interface IAuthorsRepository
 {
     Task AddAuthorAsync(Author author, CancellationToken ct);
     Task<bool> ExistsByNameAsync(string name, CancellationToken ct);
+
+    Task<Author?> GetByIdAsync(Guid id, CancellationToken ct);
 }
