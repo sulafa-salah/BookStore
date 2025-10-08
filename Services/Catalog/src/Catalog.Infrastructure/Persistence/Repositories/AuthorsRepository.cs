@@ -27,5 +27,30 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
 
     public Task<Author?> GetByIdAsync(Guid id, CancellationToken ct) =>
    _dbContext.Authors.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
+
+    public async Task<(IReadOnlyList<Author> Items, int TotalCount)> ListAuthorsAsync(
+      int pageNumber, int pageSize, string? search, string? sortBy, bool desc, CancellationToken ct)
+    {
+        var q = _dbContext.Authors.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim().ToLower();
+            q = q.Where(c => c.Name.ToLower().Contains(s) || c.Biography.ToLower().Contains(s));
+        }
+
+        // sort
+        q = (sortBy?.ToLower()) switch
+        {
+            "name" => desc ? q.OrderByDescending(c => c.Name) : q.OrderBy(c => c.Name),
+            "createdat" => desc ? q.OrderByDescending(c => c.CreatedAt) : q.OrderBy(c => c.CreatedAt),
+            _ => desc ? q.OrderByDescending(c => c.Name) : q.OrderBy(c => c.Name)
+        };
+
+        var total = await q.CountAsync(ct);
+        var items = await q.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+
+        return (items, total);
+    }
 }
 

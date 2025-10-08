@@ -15,4 +15,9 @@ public interface IAuthorsRepository
     Task<bool> ExistsByNameAsync(string name, CancellationToken ct);
 
     Task<Author?> GetByIdAsync(Guid id, CancellationToken ct);
+
+    Task<(IReadOnlyList<Author> Items, int TotalCount)> ListAuthorsAsync(
+       int pageNumber, int pageSize,
+       string? search, string? sortBy, bool desc,
+       CancellationToken ct);
 }
