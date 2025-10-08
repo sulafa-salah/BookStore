@@ -20,5 +20,7 @@ namespace Catalog.Application.Common.Interfaces
          CancellationToken ct);
         Task<bool> ExistsByNameExcludingIdAsync(string name, Guid excludeId, CancellationToken ct);
 
+        Task UpdateAsync(Category category);
+
     }
 }
