@@ -22,5 +22,8 @@ namespace Catalog.Application.Common.Interfaces
 
         Task UpdateAsync(Category category);
 
+
+        Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct = default);
+
     }
 }

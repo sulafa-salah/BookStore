@@ -29,7 +29,7 @@ public class Book : AggregateRoot, IAuditable
 
     private Book() { } // EF
 
-    private Book(ISBN isbn, Sku sku, Money price, string title, string description, Guid categoryId, Guid? id = null)
+    public  Book(ISBN isbn, Sku sku, Money price, string title, string description, Guid categoryId, Guid? id = null)
         : base(id ?? Guid.NewGuid())
     {
       

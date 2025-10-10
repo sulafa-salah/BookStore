@@ -24,4 +24,7 @@ public interface IAuthorsRepository
     Task<bool> ExistsByNameExcludingIdAsync(string name, Guid excludeId, CancellationToken ct);
 
     Task UpdateAsync(Author author);
+
+    Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<Guid>> GetMissingIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
 }

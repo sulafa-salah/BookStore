@@ -77,6 +77,12 @@ namespace Catalog.Infrastructure.Persistence.Configuration;
             .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
+       
+
+
+        var nav = b.Metadata.FindNavigation(nameof(Book.BookAuthors))!;
+        nav.SetPropertyAccessMode(PropertyAccessMode.Field);
+
         // ---- Indexes ----
         b.HasIndex(x => x.CategoryId);
         b.HasIndex(x => x.IsPublished);
@@ -90,5 +96,7 @@ namespace Catalog.Infrastructure.Persistence.Configuration;
             tb.HasCheckConstraint("CK_Books_Price_NonNegative", "[PriceAmount] >= 0");
             
         });
+
+      
     }
 }
