@@ -10,7 +10,7 @@ namespace Catalog.Domain.AuthorAggregate;
 
     public class Author : AggregateRoot, IAuditable
 {
-   
+    private readonly List<BookAuthor> _bookAuthors = new();
     public string Name { get; private set; } = null!;
     public string Biography { get; private set; } = null!;
     public bool IsActive { get; private set; }
@@ -18,7 +18,7 @@ namespace Catalog.Domain.AuthorAggregate;
     // IAuditable props
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public ICollection<BookAuthor> BookAuthors { get; private set; } = new List<BookAuthor>();
+    public IReadOnlyCollection<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
     private Author() { }
     public Author(string name, string bio, bool isActive = true, Guid? id = null) : base(id ?? Guid.NewGuid())
     { Name = name; Biography = bio; IsActive = isActive; }

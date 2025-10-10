@@ -55,4 +55,10 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
         return Task.CompletedTask;
     }
 
+    public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return await _dbContext.Set<Category>()
+            .AnyAsync(c => c.Id == id, ct);
+    }
+
 }

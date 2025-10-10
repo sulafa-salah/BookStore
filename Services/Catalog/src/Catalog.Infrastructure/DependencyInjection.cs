@@ -17,6 +17,7 @@ namespace Catalog.Infrastructure
             services.AddDbContext<CatalogDbContext>(options =>
      options.UseSqlServer(connectionString));
 
+            services.AddScoped<IBooksRepository, BooksRepository>();
             services.AddScoped<ICategoriesRepository, CategoriesRepository>();
             services.AddScoped<IAuthorsRepository, AuthorsRepository>();
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<CatalogDbContext>());
