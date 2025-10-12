@@ -1,9 +1,12 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SharedKernel.IntegrationEvents.Catalog;
+
+using System.Text.Json.Serialization;
+
 
 namespace SharedKernel.IntegrationEvents;
-    public interface IIntegrationEvent : INotification { }
+
+// Base interface for all integration events shared between microservices.
+
+[JsonDerivedType(typeof(BookCreatedIntegrationEvent), typeDiscriminator: nameof(BookCreatedIntegrationEvent))]
+public interface IIntegrationEvent : INotification { }
