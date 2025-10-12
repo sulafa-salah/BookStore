@@ -13,5 +13,5 @@ namespace Catalog.Contracts.Books;
     decimal PriceAmount,
     string PriceCurrency,           
     Guid CategoryId,
-    IReadOnlyList<Guid> AuthorIds   
+    IEnumerable<Guid> AuthorIds   
 );

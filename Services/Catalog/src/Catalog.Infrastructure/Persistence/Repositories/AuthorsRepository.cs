@@ -65,13 +65,13 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
 
     public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _dbContext.Set<Author>()
+        return await _dbContext.Authors
             .AnyAsync(a => a.Id == id, ct);
     }
 
     public async Task<IReadOnlyList<Guid>> GetMissingIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
     {
-        var existingIds = await _dbContext.Set<Author>()
+        var existingIds = await _dbContext.Authors
             .Where(a => ids.Contains(a.Id))
             .Select(a => a.Id)
             .ToListAsync(ct);

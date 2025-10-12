@@ -57,7 +57,7 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
 
     public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _dbContext.Set<Category>()
+        return await _dbContext.Categories
             .AnyAsync(c => c.Id == id, ct);
     }
 

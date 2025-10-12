@@ -21,20 +21,20 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
 
         public async Task AddBookAsync(Book book, CancellationToken ct = default)
         {
-            await _dbContext.Set<Book>().AddAsync(book, ct);
+            await _dbContext.Books.AddAsync(book, ct);
         }
 
         public async Task<bool> IsIsbnTakenAsync(string isbn, CancellationToken ct = default)
         {
             var value = ISBN.Create(isbn).Value;
-            return await _dbContext.Set<Book>()
+            return await _dbContext.Books
                 .AnyAsync(b => b.Isbn == value, ct);
         }
 
         public async Task<bool> IsSkuTakenAsync(string sku, CancellationToken ct = default)
         {
             var value = Sku.Create(sku).Value;
-            return await _dbContext.Set<Book>()
+            return await _dbContext.Books
                 .AnyAsync(b => b.Sku == value, ct);
         }
     }

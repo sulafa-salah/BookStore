@@ -4,9 +4,10 @@ using Catalog.Domain.AuthorAggregate;
 using Catalog.Domain.BookAggregate;
 using Catalog.Domain.CategoryAggreate;
 using Catalog.Domain.Common;
+using Catalog.Infrastructure.IntegrationEvents;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using System.Reflection.Emit;
 
 
 namespace Catalog.Infrastructure.Persistence
@@ -18,6 +19,7 @@ namespace Catalog.Infrastructure.Persistence
         public DbSet<Author> Authors => Set<Author>();
         public DbSet<Book> Books => Set<Book>();
         public DbSet<BookAuthor> BookAuthors => Set<BookAuthor>();
+        public DbSet<OutboxIntegrationEvent> OutboxIntegrationEvents { get; set; } = null!;
 
         public CatalogDbContext(DbContextOptions options) : base(options)
         {
@@ -25,8 +27,8 @@ namespace Catalog.Infrastructure.Persistence
            protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            base.OnModelCreating(modelBuilder);
 
-           
         }
 
         
