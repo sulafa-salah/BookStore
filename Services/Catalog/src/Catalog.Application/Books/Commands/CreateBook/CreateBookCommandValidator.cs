@@ -37,11 +37,18 @@ namespace Catalog.Application.Books.Commands.CreateBook;
         RuleFor(x => x.CategoryId)
             .NotEmpty().WithMessage("Category ID is required.");
 
+        RuleFor(x => x.AuthorIds)
+    .NotNull().WithMessage("AuthorIds are required.")
+    .Must(ids => ids.Any()).WithMessage("At least one author is required.");
+
         RuleForEach(x => x.AuthorIds)
-            .NotEmpty().WithMessage("Author ID cannot be empty.");
+             .Must(id => id != Guid.Empty).WithMessage("Author ID cannot be empty.");
 
         RuleFor(x => x.AuthorIds)
-            .Must(ids => ids.Distinct().Count() == ids.Count)
-            .WithMessage("Duplicate authors are not allowed.");
+     .Must(ids => {
+         var set = new HashSet<Guid>();
+         return ids.All(set.Add); // false if any duplicate
+     })
+     .WithMessage("Duplicate authors are not allowed.");
     }
     }

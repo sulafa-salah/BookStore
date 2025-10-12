@@ -16,5 +16,5 @@ namespace Catalog.Application.Books.Commands.CreateBook;
     decimal PriceAmount,
     string PriceCurrency,
     Guid CategoryId,
-    IReadOnlyList<Guid> AuthorIds
+    IEnumerable<Guid> AuthorIds
 ) : IRequest<ErrorOr<Book>>;

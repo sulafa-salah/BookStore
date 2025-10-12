@@ -19,7 +19,8 @@ namespace Catalog.Domain.BookAggregate;
     public static readonly Error InvalidAuthors = Error.Validation("Book.InvalidAuthors", "One or more author IDs are invalid.");
     public static readonly Error DuplicateISBN = Error.Validation("Book.ISBN.Exists", "ISBN already exists.");
     public static readonly Error DuplicateSKU = Error.Validation("Book.SKU.Exists", "SKU already exists.");
+    public static readonly Error AuthorsEmpty = Error.Validation("Book.Authors.Empty", "At least one author is required");
 
-   
+
 
 }

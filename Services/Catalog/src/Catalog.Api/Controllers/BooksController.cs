@@ -21,7 +21,7 @@ namespace Catalog.Api.Controllers
                 request.PriceAmount,
                 request.PriceCurrency,
                 request.CategoryId,
-                request.AuthorIds ?? new List<Guid>()
+                request.AuthorIds 
             );
 
             var createBookResult = await _mediator.Send(command, ct);

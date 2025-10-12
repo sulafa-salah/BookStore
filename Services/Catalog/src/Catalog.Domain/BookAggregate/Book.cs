@@ -1,4 +1,5 @@
 ﻿using Catalog.Domain.AuthorAggregate;
+using Catalog.Domain.BookAggregate.Events;
 using Catalog.Domain.CategoryAggreate;
 using Catalog.Domain.Common;
 using Catalog.Domain.Common.ValueObjects;
@@ -36,32 +37,93 @@ public class Book : AggregateRoot, IAuditable
         Isbn = isbn;
         Sku = sku;
         Price = price;
-        Title = title;
-        Description = description;
+        Title = title.Trim(); ;
+        Description = description.Trim(); ;
         CategoryId = categoryId;
-        IsPublished = false;
+        IsPublished = true;
         CreatedAt = DateTime.UtcNow;
+
+      
+
     }
-
-   
+    /// <summary>
+    /// Factory method to create a new Book aggregate.
+    /// Validates inputs, creates value objects, enforces invariants,
+    /// and raises a domain event upon successful creation.
+    /// </summary>
     public static ErrorOr<Book> Create(string isbn, string sku, decimal amount, string currency,
-        string title, string description, Guid categoryId)
+        string title, string description, Guid categoryId, IEnumerable<Guid> authorIds)
     {
-        var isbnResult = ISBN.Create(isbn);
+        // Collect validation errors from value objects.
+        var errors = new List<Error>();
+        // Create and validate ISBN value object.
+        var isbnResult = ISBN.Create(isbn);        
+        if (isbnResult.IsError) errors.AddRange(isbnResult.Errors);
+        // Create and validate SKU value object.
         var skuResult = Sku.Create(sku);
-        var moneyRes = Money.Create(amount, currency);
+        if (skuResult.IsError) errors.AddRange(skuResult.Errors);
+        // Create and validate Money value object.
+        var moneyResult = Money.Create(amount, currency);
+        if (moneyResult.IsError) errors.AddRange(moneyResult.Errors);
 
-        if (isbnResult.IsError || skuResult.IsError || moneyRes.IsError)
-            return Error.Validation("Book.Invalid", "Invalid data for Book.");
+        // If any value object validation failed, return the collected errors.
+        if (errors.Count > 0)
+            return errors;
 
-        return new Book(isbnResult.Value, skuResult.Value, moneyRes.Value, title, description, categoryId);
+        // Validate core book properties (invariants).
+        if (string.IsNullOrWhiteSpace(title))
+          return  BookErrors.InvalidTitle;
+
+        if (string.IsNullOrWhiteSpace(description))
+            return BookErrors.InvalidDescription;
+
+        if (categoryId == Guid.Empty)
+           return BookErrors.InvalidCategory;
+
+        // Ensure there is at least one valid, distinct author ID.
+        var distinctAuthors = authorIds.Where(id => id != Guid.Empty)
+                              .Distinct()
+                              .ToList();
+
+        if (distinctAuthors.Count == 0)
+            return BookErrors.AuthorsEmpty;
+
+        // Create the Book aggregate root using validated value objects and primitives.
+        var book = new Book(
+          isbnResult.Value,
+          skuResult.Value,
+          moneyResult.Value,
+          title.Trim(),
+          description.Trim(),
+          categoryId);
+
+        // Associate authors with the book, enforcing invariant (no duplicates).
+        foreach (var authorId in authorIds )
+            book.AddAuthor(authorId);
+
+
+        // Raise a domain event indicating the book was created.
+        // This event can be used to trigger actions in other bounded contexts
+        // (e.g., initializing stock in Inventory Service).
+        book._domainEvents.Add(new BookCreatedEvent(
+            BookId : book.Id,
+          Isbn: book.Isbn.Value,
+            Sku: book.Sku.Value,
+            Price: book.Price.Amount,
+            Currency: book.Price.Currency,
+            Title: book.Title,
+            CreatedAtUtc: book.CreatedAt));
+
+        // Return the successfully created book aggregate.
+        return book;
+
     }
 
     public void AddAuthor(Guid authorId)
     {
         if (_bookAuthors.Any(x => x.AuthorId == authorId)) return;
         _bookAuthors.Add(new BookAuthor(Id, authorId));
-        UpdatedAt = DateTime.UtcNow;
+       
     }
 
     public ErrorOr<Success> ChangeCategory(Guid categoryId)

@@ -1,6 +1,7 @@
 ﻿using Catalog.Application.Common.Interfaces;
 using Catalog.Domain.BookAggregate;
 using Catalog.Domain.CategoryAggreate;
+using Catalog.Domain.Common.ValueObjects;
 using ErrorOr;
 using MediatR;
 using System;
@@ -32,53 +33,65 @@ namespace Catalog.Application.Books.Commands.CreateBook;
 
         public async Task<ErrorOr<Book>> Handle(CreateBookCommand cmd, CancellationToken ct)
         {
-            // 1) Cross-aggregate existence checks
-            if (!await _categoriesRepository.ExistsByIdAsync(cmd.CategoryId, ct))
+        // 1) Category existence
+        if (!await _categoriesRepository.ExistsByIdAsync(cmd.CategoryId, ct))
             return CategoryErrors.NotFound;
-       
 
-            // 2) Uniqueness checks (fast-fail)
-            if (await _booksRepository.IsIsbnTakenAsync(cmd.Isbn, ct))
+        // 2) Uniqueness (fast-fail)
+        if (await _booksRepository.IsIsbnTakenAsync(cmd.Isbn, ct))
             return BookErrors.DuplicateISBN;
-            if (await _booksRepository.IsSkuTakenAsync(cmd.Sku, ct))
+
+        if (await _booksRepository.IsSkuTakenAsync(cmd.Sku, ct))
             return BookErrors.DuplicateSKU;
 
-        // 3) Validate authors existence 
-        if (cmd.AuthorIds?.Count > 0)
-            {
-                var missing = await _authorsRepository.GetMissingIdsAsync(cmd.AuthorIds, ct);
-                if (missing.Count > 0)
-                    return Error.Validation("Author.NotFound", $"Missing authors: {string.Join(",", missing)}");
-            }
+        // 3) Authors existence 
+        var hasAnyAuthors =
+     cmd.AuthorIds is ICollection<Guid> coll ? coll.Count > 0
+   : cmd.AuthorIds?.Any() == true;
 
-            // 4) Create book aggregate
-          
-            var created = Book.Create(
-                cmd.Isbn,
-                cmd.Sku,
-                cmd.PriceAmount,
-                 cmd.PriceCurrency,  
-                cmd.Title,
-                cmd.Description,
-                cmd.CategoryId
-            );
-
-            if (created.IsError) return created.Errors;
-
-            var book = created.Value;
-
-          
-
-            // 5) Attach authors
-            foreach (var authorId in cmd.AuthorIds ?? Array.Empty<Guid>())
-                book.AddAuthor(authorId);
-
-            //  todo : raise event
-
-            // 6) Persist
-            await _booksRepository.AddBookAsync(book, ct);
-            await _unitOfWork.CommitChangesAsync();
-
-            return book;
+        if (hasAnyAuthors)
+        {
+            var missing = await _authorsRepository.GetMissingIdsAsync(cmd.AuthorIds, ct);
+            if (missing.Count > 0)
+                return Error.Validation("Author.NotFound", $"Missing authors: {string.Join(",", missing)}");
         }
+
+        // 4) Build value objects (collect validation)
+        var errors = new List<Error>();
+
+        var isbnRes = ISBN.Create(cmd.Isbn);
+        if (isbnRes.IsError) errors.AddRange(isbnRes.Errors);
+
+        var skuRes = Sku.Create(cmd.Sku);
+        if (skuRes.IsError) errors.AddRange(skuRes.Errors);
+
+        var moneyRes = Money.Create(cmd.PriceAmount, cmd.PriceCurrency);
+        if (moneyRes.IsError) errors.AddRange(moneyRes.Errors);
+
+      
+
+        if (errors.Count > 0) return errors;
+
+        // 5) Create aggregate
+        var created =Book.Create(
+            isbnRes.Value.ToString(),
+            skuRes.Value.ToString(),
+            moneyRes.Value.Amount,
+            cmd.PriceCurrency,
+            cmd.Title!.Trim(),
+            cmd.Description!.Trim(),
+            cmd.CategoryId,
+            cmd.AuthorIds
+           );
+        if (created.IsError) return created.Errors;
+
+        var book = created.Value;
+
+        // 6) Persist
+        await _booksRepository.AddBookAsync(book, ct);
+        await _unitOfWork.CommitChangesAsync();
+
+        return book;
+    
+}
     }
