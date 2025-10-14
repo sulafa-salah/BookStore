@@ -10,14 +10,9 @@ namespace Catalog.Application.Categories.Commands.CreateCategory
     public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, ErrorOr<Category>>
     {
         private readonly ICategoriesRepository _categoriesRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateCategoryCommandHandler(ICategoriesRepository categoriesRepository, IUnitOfWork unitOfWork)
-        {
-            _categoriesRepository = categoriesRepository;
-             _unitOfWork = unitOfWork;
-        }
-
+       
+        public CreateCategoryCommandHandler(ICategoriesRepository categoriesRepository) => _categoriesRepository = categoriesRepository;
+       
         public async Task<ErrorOr<Category>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             // domain invariant: unique name 
@@ -34,8 +29,7 @@ namespace Catalog.Application.Categories.Commands.CreateCategory
 
             // Add it to the database
             await _categoriesRepository.AddCategoryAsync(category,cancellationToken);
-             await _unitOfWork.CommitChangesAsync();
-
+            
             // Return Category
             return category;
         }

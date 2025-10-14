@@ -28,7 +28,7 @@ public class SqliteTestDatabase : IDisposable
             .UseSqlite(Connection)
             .Options;
 
-        var context = new CatalogDbContext(options);
+        var context = new CatalogDbContext(options,null!);
 
         context.Database.EnsureCreated();
     }

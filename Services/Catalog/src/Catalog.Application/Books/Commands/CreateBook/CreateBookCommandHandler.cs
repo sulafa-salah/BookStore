@@ -17,18 +17,18 @@ namespace Catalog.Application.Books.Commands.CreateBook;
         private readonly IBooksRepository _booksRepository;
         private readonly IAuthorsRepository _authorsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
-        private readonly IUnitOfWork _unitOfWork;
+      
 
         public CreateBookCommandHandler(
             IBooksRepository books,
             IAuthorsRepository authors,
-            ICategoriesRepository categories,
-            IUnitOfWork uow)
+            ICategoriesRepository categories
+         )
         {
         _booksRepository = books;
         _authorsRepository = authors;
         _categoriesRepository = categories;
-        _unitOfWork = uow;
+      
         }
 
         public async Task<ErrorOr<Book>> Handle(CreateBookCommand cmd, CancellationToken ct)
@@ -89,7 +89,7 @@ namespace Catalog.Application.Books.Commands.CreateBook;
 
         // 6) Persist
         await _booksRepository.AddBookAsync(book, ct);
-        await _unitOfWork.CommitChangesAsync();
+      
 
         return book;
     

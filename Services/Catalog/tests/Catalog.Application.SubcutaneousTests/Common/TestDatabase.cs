@@ -29,7 +29,7 @@ public class SqliteTestDatabase : IDisposable
             .Options;
 
         // If DbContext has more ctor deps, supply them here.
-        var context = new CatalogDbContext(options);
+        var context = new CatalogDbContext(options,null!);
 
         // EnsureCreated  for test schemas (no migrations needed).
         context.Database.EnsureCreated();

@@ -15,9 +15,9 @@ namespace Catalog.Application.Authors.Commands.UpdateAuthor;
     public class UpdateAuthorCommandHandler : IRequestHandler<UpdateAuthorCommand, ErrorOr<Author>>
     {
     private readonly IAuthorsRepository _authorsRepository;
-    private readonly IUnitOfWork _unitOfWork;
+  
 
-    public UpdateAuthorCommandHandler(IAuthorsRepository authorsRepository, IUnitOfWork unitOfWork) => (_authorsRepository, _unitOfWork) = (authorsRepository, unitOfWork);
+    public UpdateAuthorCommandHandler(IAuthorsRepository authorsRepository) => _authorsRepository = authorsRepository;
  
     public async Task<ErrorOr<Author>> Handle(UpdateAuthorCommand cmd, CancellationToken ct)
     {
@@ -31,7 +31,7 @@ namespace Catalog.Application.Authors.Commands.UpdateAuthor;
         author.Update(newName, newBio,cmd.IsActive);
         await _authorsRepository.UpdateAsync(author);
 
-        await _unitOfWork.CommitChangesAsync();
+    
             return author;
         }
     }
