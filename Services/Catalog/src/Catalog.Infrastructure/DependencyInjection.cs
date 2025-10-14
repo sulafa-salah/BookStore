@@ -1,13 +1,14 @@
 ﻿
 using Catalog.Application.Common.Interfaces;
-
 using Catalog.Infrastructure.IntegrationEvents.Settings;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Repositories;
 using MassTransit;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 
@@ -15,14 +16,14 @@ using Microsoft.Extensions.Options;
 namespace Catalog.Infrastructure;
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
         services
          .AddMediatR()
          .AddConfigurations(configuration)
    
          .AddPersistence(configuration)
-          .AddMessaging(configuration);
+          .AddMessaging(configuration,environment);
 
         return services;
     }
@@ -59,16 +60,17 @@ namespace Catalog.Infrastructure;
         return services;
     }
     // ---------- MassTransit  ---------- 
-    public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         var mq = new MessageBrokerSettings();
         configuration.Bind(MessageBrokerSettings.Section, mq);
-
-        services.AddMassTransit(x =>
+        if (!environment.IsEnvironment("Testing"))
+        { 
+            services.AddMassTransit(x =>
         {
-        
+
             x.SetKebabCaseEndpointNameFormatter();
-          
+
             x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
             {
                 o.UseSqlServer();
@@ -87,10 +89,11 @@ namespace Catalog.Infrastructure;
                 {
                     r.Immediate(2);
                 });
-         
+
                 cfg.ConfigureEndpoints(context);
             });
         });
+    }
         return services;
     }
 }
