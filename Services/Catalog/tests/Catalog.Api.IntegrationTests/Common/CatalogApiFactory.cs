@@ -1,10 +1,14 @@
 ﻿using Catalog.Infrastructure.Persistence;
+using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 
 
 namespace Catalog.Api.IntegrationTests.Common;
@@ -17,13 +21,29 @@ namespace Catalog.Api.IntegrationTests.Common;
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            _testDatabase = SqliteTestDatabase.CreateAndInitialize();
+        builder.UseEnvironment("Testing");
+        _testDatabase = SqliteTestDatabase.CreateAndInitialize();
+     
 
-            builder.ConfigureTestServices(services =>
+        builder.ConfigureTestServices(services =>
             {
                 services
                     .RemoveAll<DbContextOptions<CatalogDbContext>>()
                     .AddDbContext<CatalogDbContext>((sp, options) => options.UseSqlite(_testDatabase.Connection));
+
+                // Remove RabbitMQ registrations and MassTransit HostedService if any
+                services.RemoveAll<IBus>();
+                services.RemoveAll<IBusControl>();
+                services.RemoveAll<IHostedService>();
+
+                // Use in-memory MassTransit Test Harness
+                services.AddMassTransitTestHarness(cfg =>
+                {
+                    cfg.UsingInMemory((context, cfgInMemory) =>
+                    {
+                        cfgInMemory.ConfigureEndpoints(context);
+                    });
+                });
             });
         }
 

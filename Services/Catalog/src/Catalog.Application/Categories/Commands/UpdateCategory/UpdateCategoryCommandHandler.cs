@@ -14,10 +14,9 @@ namespace Catalog.Application.Categories.Commands.UpdateCategory;
      : IRequestHandler<UpdateCategoryCommand, ErrorOr<Category>>
     {
         private readonly ICategoriesRepository _categoriesRepository;
-        private readonly IUnitOfWork _unitOfWork;
+      
 
-        public UpdateCategoryCommandHandler(ICategoriesRepository categoriesRepository, IUnitOfWork unitOfWork)
-            => (_categoriesRepository, _unitOfWork) = (categoriesRepository, unitOfWork);
+        public UpdateCategoryCommandHandler(ICategoriesRepository categoriesRepository) => _categoriesRepository = categoriesRepository;
 
         public async Task<ErrorOr<Category>> Handle(UpdateCategoryCommand r, CancellationToken ct)
         {
@@ -32,8 +31,7 @@ namespace Catalog.Application.Categories.Commands.UpdateCategory;
 
             category.Update(newName, newDesc, r.IsActive);
         await _categoriesRepository.UpdateAsync(category);
-        await _unitOfWork.CommitChangesAsync();
-
+       
             return category;
         }
     }

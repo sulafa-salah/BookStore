@@ -1,6 +1,7 @@
 
-using Catalog.Infrastructure.Persistence;
 using Catalog.Api;
+using Catalog.Infrastructure.Persistence;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Catalog.Application.SubcutaneousTests.Common;
 
@@ -19,6 +21,7 @@ public class MediatorFactory : WebApplicationFactory<IAssemblyMarker>, IAsyncLif
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment("Testing");
         // Create & initialize the in-memory database once per factory instance.
         _testDatabase = SqliteTestDatabase.CreateAndInitialize();
 
@@ -32,6 +35,20 @@ public class MediatorFactory : WebApplicationFactory<IAssemblyMarker>, IAsyncLif
             services
                 .RemoveAll<DbContextOptions<CatalogDbContext>>()
                 .AddDbContext<CatalogDbContext>((sp, options) => options.UseSqlite(_testDatabase.Connection));
+
+            // Remove RabbitMQ registrations and MassTransit HostedService if any
+            services.RemoveAll<IBus>();
+            services.RemoveAll<IBusControl>();
+            services.RemoveAll<IHostedService>();
+
+            // Use in-memory MassTransit Test Harness
+            services.AddMassTransitTestHarness(cfg =>
+            {
+                cfg.UsingInMemory((context, cfgInMemory) =>
+                {
+                    cfgInMemory.ConfigureEndpoints(context);
+                });
+            });
         });
     }
 

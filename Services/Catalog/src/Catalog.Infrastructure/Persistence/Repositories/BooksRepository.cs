@@ -22,7 +22,8 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
         public async Task AddBookAsync(Book book, CancellationToken ct = default)
         {
             await _dbContext.Books.AddAsync(book, ct);
-        }
+        await _dbContext.SaveChangesAsync();
+    }
 
         public async Task<bool> IsIsbnTakenAsync(string isbn, CancellationToken ct = default)
         {

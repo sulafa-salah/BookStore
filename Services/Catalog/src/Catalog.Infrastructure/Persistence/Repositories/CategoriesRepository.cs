@@ -9,11 +9,14 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
         private readonly CatalogDbContext _dbContext;
 
         public CategoriesRepository(CatalogDbContext dbContext) => _dbContext = dbContext;
-       
 
-        public async Task AddCategoryAsync(Category category, CancellationToken ct)
-       
-         =>   await _dbContext.Categories.AddAsync(category,ct);
+
+    public async Task AddCategoryAsync(Category category, CancellationToken ct)
+
+    {
+        await _dbContext.Categories.AddAsync(category, ct);
+        await _dbContext.SaveChangesAsync();
+    }
        
 
         public Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
@@ -49,10 +52,10 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
     public async Task<bool> ExistsByNameExcludingIdAsync(string name, Guid excludeId, CancellationToken ct) =>
    await _dbContext.Categories.AnyAsync(c => c.Id != excludeId && c.Name.ToLower() == name.ToLower(), ct);
 
-    public Task UpdateAsync(Category category)
+    public async Task UpdateAsync(Category category)
     {
         _dbContext.Update(category);
-        return Task.CompletedTask;
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct = default)

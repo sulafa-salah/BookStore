@@ -21,7 +21,10 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
         }
     public async Task AddAuthorAsync(Author author, CancellationToken ct)
 
-       => await _dbContext.Authors.AddAsync(author, ct);
+    {
+        await _dbContext.Authors.AddAsync(author, ct);
+        await _dbContext.SaveChangesAsync();
+    }
     public Task<bool> ExistsByNameAsync(string name, CancellationToken ct)
        => _dbContext.Authors.AnyAsync(c => c.Name == name, ct);
 
@@ -56,11 +59,11 @@ namespace Catalog.Infrastructure.Persistence.Repositories;
     public async Task<bool> ExistsByNameExcludingIdAsync(string name, Guid excludeId, CancellationToken ct) =>
    await _dbContext.Authors.AnyAsync(c => c.Id != excludeId && c.Name.ToLower() == name.ToLower(), ct);
 
-    public Task UpdateAsync(Author author)
+    public async Task UpdateAsync(Author author)
     {
         _dbContext.Update(author);
-
-        return Task.CompletedTask;
+        await _dbContext.SaveChangesAsync();
+       
     }
 
     public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken ct = default)

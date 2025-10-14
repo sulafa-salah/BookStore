@@ -11,13 +11,10 @@ namespace Catalog.Application.Authors.Commands.CreateAuthor
     public class CreateAuthorCommandHandler : IRequestHandler<CreateAuthorCommand, ErrorOr<Author>>
     {
         private readonly IAuthorsRepository _authorsRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateAuthorCommandHandler(IAuthorsRepository authorsRepository, IUnitOfWork unitOfWork)
-        {
-            _authorsRepository = authorsRepository;
-             _unitOfWork = unitOfWork;
-        }
+    
+        public CreateAuthorCommandHandler(IAuthorsRepository authorsRepository) => _authorsRepository = authorsRepository;
+        
+         
 
         public async Task<ErrorOr<Author>> Handle(CreateAuthorCommand request, CancellationToken cancellationToken)
         {
@@ -35,7 +32,7 @@ namespace Catalog.Application.Authors.Commands.CreateAuthor
 
             // Add it to the database
             await _authorsRepository.AddAuthorAsync(author,cancellationToken);
-             await _unitOfWork.CommitChangesAsync();
+           
 
             // Return author
             return author;
