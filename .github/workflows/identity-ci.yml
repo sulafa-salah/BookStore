@@ -1,0 +1,63 @@
+name: Identity CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'Services/Identity/**'
+      - 'Shared/Auth/**'
+      - '.github/workflows/identity-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'Services/Identity/**'
+      - 'Shared/Auth/**'
+      - '.github/workflows/identity-ci.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      ASPNETCORE_ENVIRONMENT: Test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET (with NuGet cache)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.sln
+            **/*.csproj
+            **/packages.lock.json
+            **/nuget.config
+
+      - name: Restore
+        run: dotnet restore Services/Identity/Identity.sln
+
+      - name: Build
+        run: dotnet build Services/Identity/Identity.sln --no-restore -c Release
+
+      - name: Test (trx + coverage)
+        run: >
+          dotnet test Services/Identity/Identity.sln
+          --no-build -c Release
+          --logger "trx;LogFileName=test-results.trx"
+          --collect "XPlat Code Coverage"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: identity-test-results
+          path: |
+            **/TestResults/*.trx
+            **/TestResults/*/coverage.cobertura.xml
