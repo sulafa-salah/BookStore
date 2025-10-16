@@ -1,6 +1,9 @@
-﻿using Identity.Application.Authentication.Common;
+﻿using BookStore.Permissions;
+using Identity.Application.Authentication.Common;
 using Identity.Application.Common.Interfaces;
 using Identity.Domain.UserAggregate;
+using Identity.Infrastructure.Persistence.Seeding;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -16,10 +19,12 @@ namespace Identity.Infrastructure.Authentication.TokenGenerator;
 public class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtSettings _jwtSettings;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public JwtTokenGenerator(IOptions<JwtSettings> jwtOptions)
+    public JwtTokenGenerator(IOptions<JwtSettings> jwtOptions,UserManager<ApplicationUser> userManager)
     {
         _jwtSettings = jwtOptions.Value;
+        _userManager = userManager;
     }
 
     public TokenResult GenerateTokens(ApplicationUser user)
@@ -50,17 +55,22 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private static IEnumerable<Claim> CreateClaims(ApplicationUser user)
+    private  IEnumerable<Claim> CreateClaims(ApplicationUser user)
     {
-        return new[]
+        var claims = new List<Claim>
         {
         new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Name, user.FirstName),
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
         new Claim("id", user.Id.ToString())
     };
-    }
+       
+        var roles = _userManager.GetRolesAsync(user).GetAwaiter().GetResult();
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
+        return claims;
+    }
+   
     private static string GenerateRefreshToken()
     {
         Span<byte> bytes = stackalloc byte[64];

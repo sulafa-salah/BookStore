@@ -1,15 +1,21 @@
 ﻿
 using Catalog.Application.Common.Interfaces;
+using Catalog.Infrastructure.Authentication.TokenSetting;
 using Catalog.Infrastructure.IntegrationEvents.Settings;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Repositories;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 
 
@@ -19,11 +25,46 @@ namespace Catalog.Infrastructure;
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
         services
+            .AddJWTAuthentication(configuration)
          .AddMediatR()
          .AddConfigurations(configuration)
    
          .AddPersistence(configuration)
           .AddMessaging(configuration,environment);
+
+        return services;
+    }
+    public static IServiceCollection AddJWTAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = new JwtSettings();
+        configuration.Bind(JwtSettings.Section, jwtSettings);
+
+        services.AddSingleton(Options.Create(jwtSettings));
+        JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+        services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options => 
+            {
+
+             
+        options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtSettings.Audience,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+                    ClockSkew = TimeSpan.Zero,
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = ctx => { Console.WriteLine(ctx.Exception); return Task.CompletedTask; },
+                    OnChallenge = ctx => { Console.WriteLine($"Challenge: {ctx.Error} {ctx.ErrorDescription}"); return Task.CompletedTask; }
+                };
+            });
+
 
         return services;
     }

@@ -13,7 +13,9 @@ namespace Catalog.Application
             services.AddMediatR(options =>
             {
                 options.RegisterServicesFromAssemblyContaining(typeof(DependencyInjection));
+                options.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
                 options.AddOpenBehavior(typeof(ValidationBehavior<,>));
+             
             });
             services.AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
 
