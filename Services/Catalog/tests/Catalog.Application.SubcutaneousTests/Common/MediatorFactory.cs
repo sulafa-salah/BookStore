@@ -1,12 +1,15 @@
 
 using Catalog.Api;
+using Catalog.Application.Common.Interfaces;
 using Catalog.Infrastructure.Persistence;
 using MassTransit;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +25,8 @@ public class MediatorFactory : WebApplicationFactory<IAssemblyMarker>, IAsyncLif
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+
+      
         // Create & initialize the in-memory database once per factory instance.
         _testDatabase = SqliteTestDatabase.CreateAndInitialize();
 
@@ -41,6 +46,12 @@ public class MediatorFactory : WebApplicationFactory<IAssemblyMarker>, IAsyncLif
             services.RemoveAll<IBusControl>();
             services.RemoveAll<IHostedService>();
 
+            // Replace the real current-user provider with a test double
+            services.RemoveAll<ICurrentUserProvider>();
+            services.AddSingleton<ICurrentUserProvider>(
+                new TestCurrentUserProvider(
+                    Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    new[] { "Admin" }));
             // Use in-memory MassTransit Test Harness
             services.AddMassTransitTestHarness(cfg =>
             {
@@ -49,6 +60,7 @@ public class MediatorFactory : WebApplicationFactory<IAssemblyMarker>, IAsyncLif
                     cfgInMemory.ConfigureEndpoints(context);
                 });
             });
+      
         });
     }
 

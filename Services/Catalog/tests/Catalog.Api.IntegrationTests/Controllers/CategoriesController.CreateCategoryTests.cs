@@ -19,6 +19,11 @@ public class CreateCategoryTests
     public CreateCategoryTests(CatalogApiFactory apiFactory)
     {
         _client = apiFactory.HttpClient;
+        _client.DefaultRequestHeaders.Remove("X-Test-Roles");
+        _client.DefaultRequestHeaders.Remove("X-Test-Permissions");
+        _client.DefaultRequestHeaders.Add("X-Test-Roles", "Admin");
+        _client.DefaultRequestHeaders.Add("X-Test-Permissions",
+            "catalog:categories.read,catalog:categories.write");
         apiFactory.ResetDatabase();
     }
     [Fact]

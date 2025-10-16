@@ -44,7 +44,7 @@ namespace Identity.Infrastructure;
 
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>(); 
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>(); 
 
         return services;
     }

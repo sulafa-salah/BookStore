@@ -2,12 +2,13 @@
 using Catalog.Application.Categories.Commands.UpdateCategory;
 using Catalog.Application.Categories.Queries.GetCategory;
 using Catalog.Application.Categories.Queries.ListCategories;
+using Catalog.Application.Common.Authorization;
 using Catalog.Application.Common.Mappings;
 using Catalog.Contracts.Categories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Catalog.Api.Controllers;
 [Route("api/[controller]")]
@@ -19,8 +20,9 @@ public class CategoriesController : ApiController
     {
         _mediator = mediator;
     }
-
+  
     [HttpPost]
+ 
     public async Task<IActionResult> CreateCategory(CreateCategoryRequest request)
     {
         var command = new CreateCategoryCommand(
