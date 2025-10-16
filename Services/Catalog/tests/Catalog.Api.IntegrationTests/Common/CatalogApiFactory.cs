@@ -1,5 +1,6 @@
 ﻿using Catalog.Infrastructure.Persistence;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -22,6 +23,15 @@ namespace Catalog.Api.IntegrationTests.Common;
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
         builder.UseEnvironment("Testing");
+        builder.ConfigureAppConfiguration((_, cfg) =>
+        {
+            cfg.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["JwtSettings:Secret"] = "test-only-super-long-256-bit-secret-change-me",
+                ["JwtSettings:Issuer"] = "IdentityBookStore",
+                ["JwtSettings:Audience"] = "BookStore",
+            });
+        });
         _testDatabase = SqliteTestDatabase.CreateAndInitialize();
      
 
@@ -44,6 +54,13 @@ namespace Catalog.Api.IntegrationTests.Common;
                         cfgInMemory.ConfigureEndpoints(context);
                     });
                 });
+                services.AddAuthentication(o =>
+                {
+                    o.DefaultAuthenticateScheme = "Test";
+                    o.DefaultChallengeScheme = "Test";
+                })
+       .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
+
             });
         }
 
