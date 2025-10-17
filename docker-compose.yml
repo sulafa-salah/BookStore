@@ -1,0 +1,121 @@
+version: "3.9"
+
+services:
+  identity-api:
+    build:
+      context: .
+      dockerfile: Services/Identity/src/Identity.Api/Dockerfile
+    container_name: identity-api
+    ports:
+      - "7100:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=BookStore_Identity;User=sa;Password=${DB_SA_PASSWORD};Encrypt=False;TrustServerCertificate=True
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+    depends_on:
+      - sqlserver
+      - rabbitmq
+    networks:
+      - bookstore-net
+
+  catalog-api:
+    build:
+      context: .
+      dockerfile: Services/Catalog/src/Catalog.Api/Dockerfile
+    container_name: catalog-api
+    ports:
+      - "7200:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=BookStore_Catalog;User=sa;Password=${DB_SA_PASSWORD};Encrypt=False;TrustServerCertificate=True
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+    depends_on:
+      - sqlserver
+      - rabbitmq
+    networks:
+      - bookstore-net
+
+  cart-api:
+    build:
+      context: .
+      dockerfile: Services/Cart/src/Cart.Api/Dockerfile
+    container_name: cart-api
+    ports:
+      - "7300:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - bookstore-net
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - bookstore-net
+
+      
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - bookstore-net
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - SA_PASSWORD=${DB_SA_PASSWORD}
+      - ACCEPT_EULA=Y
+    ports:
+      - "1434:1433"    #  Host port 1434 → container port 1433
+    volumes:
+      - sql-data:/var/opt/mssql
+    networks:
+      - bookstore-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5673:5672"    #  Host port 5673 → container port 5672
+      - "15673:15672"  #  Host port 15673 → container port 15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - bookstore-net
+
+networks:
+  bookstore-net:
+    name: bookstore-net
+
+volumes:
+  redis-data:
+  sql-data:
