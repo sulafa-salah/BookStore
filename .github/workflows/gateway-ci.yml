@@ -1,0 +1,24 @@
+name: Gateway CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Services/Gateway/**'
+      - '.github/workflows/gateway-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Services/Gateway/**'
+      - '.github/workflows/gateway-ci.yml'
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore Services/Gateway/src/Gateway.Api/Gateway.Api.csproj
+      - run: dotnet build Services/Gateway/src/Gateway.Api/Gateway.Api.csproj --no-restore -c Release

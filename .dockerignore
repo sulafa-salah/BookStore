@@ -484,6 +484,9 @@ $RECYCLE.BIN/
 **/.vs
 **/.vscode
 **/node_modules
+**/*.user
+**/*.suo
+**/*.swp
 .git
 .env
 docker-compose.override.yml

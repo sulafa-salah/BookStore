@@ -1,6 +1,25 @@
 version: "3.9"
 
 services:
+
+  gateway-api:
+    build:
+      context: .
+      dockerfile: Services/Gateway/src/Gateway.Api/Dockerfile
+    container_name: gateway-api
+    ports:
+      - "7000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+    depends_on:
+      - identity-api
+      - catalog-api
+      - cart-api
+    networks:
+      - bookstore-net
   identity-api:
     build:
       context: .
