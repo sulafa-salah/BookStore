@@ -91,5 +91,11 @@ public class BooksRepository : IBooksRepository
 
     }
 
-  
+    public async void Update(Book book)
+    {
+        _dbContext.Books.Update(book);
+        await _dbContext.SaveChangesAsync();
+    }
+
+
 }

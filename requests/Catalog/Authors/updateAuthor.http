@@ -1,0 +1,14 @@
+@baseUrl = http://localhost:7000
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZmNiODI1OS1mZGJmLTRjNWYtYWRkYS1kMmNhNWIwNDNhNDMiLCJuYW1lIjoiU3lzdGVtIiwiZW1haWwiOiJhZG1pbkBib29rc3RvcmUubG9jYWwiLCJpZCI6IjVmY2I4MjU5LWZkYmYtNGM1Zi1hZGRhLWQyY2E1YjA0M2E0MyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzYwOTY2NTEwLCJpc3MiOiJJZGVudGl0eUJvb2tTdG9yZSIsImF1ZCI6IkJvb2tTdG9yZSJ9.eER27-UvjWz-jc7n_EbcPYSUQsDQuKhrj67YU8MpWmw
+
+### Update author
+PUT {{baseUrl}}/catalog/api/authors/0585fd46-289f-4840-b5e6-5494f4403f5d
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+
+{
+  "name": "Robert C. Martin",
+  "bio": "Updated biography text here.",
+  "isActive": true
+}

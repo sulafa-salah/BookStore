@@ -2,6 +2,19 @@ version: "3.9"
 
 services:
 
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azurite
+    command: "azurite -l /data --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0"
+    ports:
+      - "10000:10000"  # Blob
+      - "10001:10001"  # Queue
+      - "10002:10002"  # Table
+    volumes:
+      - azurite-data:/data
+    networks:
+      - bookstore-net
+
   gateway-api:
     build:
       context: .
@@ -56,9 +69,13 @@ services:
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=BookStore_Catalog;User=sa;Password=${DB_SA_PASSWORD};Encrypt=False;TrustServerCertificate=True
       - RabbitMQ__Host=rabbitmq
       - RabbitMQ__Port=5672
+      - AzureStorage__ConnectionString=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      - AzureStorage__CoversContainer=covers
+      - AzureStorage__ThumbsContainer=thumbs
     depends_on:
       - sqlserver
       - rabbitmq
+      - azurite
     networks:
       - bookstore-net
 
@@ -138,3 +155,4 @@ networks:
 volumes:
   redis-data:
   sql-data:
+  azurite-data:

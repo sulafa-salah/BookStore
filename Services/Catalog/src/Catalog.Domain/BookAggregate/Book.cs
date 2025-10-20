@@ -23,6 +23,8 @@ public class Book : AggregateRoot, IAuditable
     public ISBN Isbn { get; private set; }
     public bool IsPublished { get; private set; }
     public Guid CategoryId { get; private set; }
+    public string? CoverBlobName { get; private set; }
+    public string? ThumbBlobName { get; private set; }
     public IReadOnlyCollection<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
 
     public DateTime CreatedAt { get; set; }
@@ -118,7 +120,16 @@ public class Book : AggregateRoot, IAuditable
         return book;
 
     }
+    public ErrorOr<Success> SetCover(string blobName, string? thumbBlobName = null)
+    {
+        if (string.IsNullOrWhiteSpace(blobName))
+            return Error.Validation("Book.Cover.Empty", "Cover blob is required.");
 
+        CoverBlobName = blobName.Trim();
+        ThumbBlobName = thumbBlobName?.Trim();
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success;
+    }
     public void AddAuthor(Guid authorId)
     {
         if (_bookAuthors.Any(x => x.AuthorId == authorId)) return;

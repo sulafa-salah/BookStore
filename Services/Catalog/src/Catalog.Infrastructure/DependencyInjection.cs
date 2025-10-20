@@ -1,9 +1,11 @@
 ﻿
+using Azure.Storage.Blobs;
 using Catalog.Application.Common.Interfaces;
 using Catalog.Infrastructure.Authentication.TokenSetting;
 using Catalog.Infrastructure.IntegrationEvents.Settings;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Repositories;
+using Catalog.Infrastructure.Persistence.Storage.Azure;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -25,13 +27,12 @@ namespace Catalog.Infrastructure;
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
         services
-            .AddJWTAuthentication(configuration)
-         .AddMediatR()
-         .AddConfigurations(configuration)
-   
-         .AddPersistence(configuration)
-          .AddMessaging(configuration,environment);
-
+           .AddConfigurations(configuration)       // bind options first
+            .AddPersistence(configuration)          // DbContext + repos
+            .AddMessaging(configuration, environment) // MassTransit/RabbitMQ
+            .AddStorage(configuration)              //  Blob Storage
+            .AddMediatR()                           // your current style
+            .AddJWTAuthentication(configuration);   // auth 
         return services;
     }
     public static IServiceCollection AddJWTAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -85,6 +86,27 @@ namespace Catalog.Infrastructure;
         configuration.Bind(MessageBrokerSettings.Section, messageBrokerSettings);
 
         services.AddSingleton(Options.Create(messageBrokerSettings));
+
+        // Azure Storage settings binding
+        var storageSettings = new AzureStorageSettings();
+        configuration.Bind(AzureStorageSettings.Section, storageSettings);
+        services.AddSingleton(Options.Create(storageSettings));
+
+        return services;
+    }
+    // ----------  Azure Blob Storage ----------
+    public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Prefer connection string under section, or ConnectionStrings:AzureStorage
+        services.Configure<AzureStorageSettings>(
+       configuration.GetSection(AzureStorageSettings.Section));
+
+        services.AddSingleton(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<AzureStorageSettings>>().Value;
+            return new BlobServiceClient(settings.ConnectionString);
+        });
+        services.AddScoped<IBlobStorage, AzureBlobStorage>();
 
         return services;
     }

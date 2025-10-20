@@ -1,0 +1,8 @@
+@baseUrl = http://localhost:7000/identity/api/Authentication
+POST {{baseUrl}}/refresh
+Content-Type: application/json
+
+{
+ "refreshToken": "PUT_REFRESH_TOKEN_HERE"
+
+}
