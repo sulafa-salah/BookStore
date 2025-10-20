@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "ImageProcessor.Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7140"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "containerRunArguments": "--init",
+      "httpPort": 30626,
+      "useSSL": false
+    }
+  }
+}
