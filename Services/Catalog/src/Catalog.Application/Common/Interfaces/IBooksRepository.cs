@@ -20,4 +20,6 @@ namespace Catalog.Application.Common.Interfaces;
       int pageNumber, int pageSize,
       string? search, string? sortBy, bool desc,
       CancellationToken ct);
+
+    void Update(Book book);
 }

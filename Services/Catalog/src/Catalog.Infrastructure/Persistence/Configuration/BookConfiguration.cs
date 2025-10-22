@@ -72,6 +72,13 @@ namespace Catalog.Infrastructure.Persistence.Configuration;
         b.Property(x => x.CategoryId)
             .IsRequired();
 
+
+        b.Property(x => x.CoverBlobName)
+         .HasMaxLength(200);
+
+        b.Property(x => x.ThumbBlobName)
+            .HasMaxLength(200);
+
         b.HasOne<Category>()
             .WithMany()
             .HasForeignKey(x => x.CategoryId)

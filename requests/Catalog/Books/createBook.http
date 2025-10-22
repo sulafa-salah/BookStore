@@ -1,0 +1,41 @@
+@baseUrl = http://localhost:7000
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNjljNmRjZi0yNTM1LTQxMmYtYWYyYi05MjQ0ZTQ4ZDExYmUiLCJuYW1lIjoiU3lzdGVtIiwiZW1haWwiOiJhZG1pbkBib29rc3RvcmUubG9jYWwiLCJpZCI6ImU2OWM2ZGNmLTI1MzUtNDEyZi1hZjJiLTkyNDRlNDhkMTFiZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzYxMDc1MTY0LCJpc3MiOiJJZGVudGl0eUJvb2tTdG9yZSIsImF1ZCI6IkJvb2tTdG9yZSJ9.fpMN7_ARDdOHFQ9oyN2zOBA6_DeW48jnMMemaGDA4ZY
+@categoryId = 417821d8-f0c6-4bfd-a6d9-29eb41914fd7
+@authorId1 = 74eee1f3-8f17-45a2-a69b-06dc28626ce6
+
+
+###
+# Create book
+POST {{baseUrl}}/catalog/api/books
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "title": "Clean Architectureee",
+  "description": "A Craftsman's Guide to Software Structure and Design.",
+  "isbn": "978-0134494176",
+  "sku": "BOOK-CA-002",
+  "priceAmount": 39.99,
+  "priceCurrency": "USD",
+  "categoryId": "{{categoryId}}",
+  "authorIds": [
+    "{{authorId1}}"
+   
+  ]
+}
+
+
+
+# {
+#   "title": "Clean Architectureee",
+#   "description": "A Craftsman's Guide to Software Structure and Design.",
+#   "isbn": "978-0134494166",
+#   "sku": "BOOK-CA-001",
+#   "priceAmount": 39.99,
+#   "priceCurrency": "USD",
+#   "categoryId": "AC443C68-4D56-4603-820F-6937B7599EE5",
+#   "authorIds": [
+#     "62D7FE6A-00E8-4329-A770-5F1BCB102C6E"
+   
+#   ]
+# }

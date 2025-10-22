@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:7000
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNjljNmRjZi0yNTM1LTQxMmYtYWYyYi05MjQ0ZTQ4ZDExYmUiLCJuYW1lIjoiU3lzdGVtIiwiZW1haWwiOiJhZG1pbkBib29rc3RvcmUubG9jYWwiLCJpZCI6ImU2OWM2ZGNmLTI1MzUtNDEyZi1hZjJiLTkyNDRlNDhkMTFiZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzYxMDc1MTY0LCJpc3MiOiJJZGVudGl0eUJvb2tTdG9yZSIsImF1ZCI6IkJvb2tTdG9yZSJ9.fpMN7_ARDdOHFQ9oyN2zOBA6_DeW48jnMMemaGDA4ZY
+
+# List authors (paged + search + sort)
+# Query params: PageNumber, PageSize, Search, SortBy, SortDir
+GET {{baseUrl}}/catalog/api/authors?PageNumber=1&PageSize=10&Search=martin&SortBy=Name&SortDir=asc
+Authorization: Bearer {{access_token}}

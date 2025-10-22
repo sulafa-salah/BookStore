@@ -1,9 +1,12 @@
 ﻿
+using Azure.Storage.Blobs;
 using Catalog.Application.Common.Interfaces;
 using Catalog.Infrastructure.Authentication.TokenSetting;
 using Catalog.Infrastructure.IntegrationEvents.Settings;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Repositories;
+using Catalog.Infrastructure.Persistence.Storage.Azure;
+using Catalog.Infrastructure.Queues;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -25,13 +28,13 @@ namespace Catalog.Infrastructure;
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
         services
-            .AddJWTAuthentication(configuration)
-         .AddMediatR()
-         .AddConfigurations(configuration)
-   
-         .AddPersistence(configuration)
-          .AddMessaging(configuration,environment);
-
+             .AddMediatR()
+           .AddConfigurations(configuration)       
+            .AddPersistence(configuration)         
+            .AddMessaging(configuration, environment) 
+            .AddStorage(configuration)              //  Blob Storage
+                                   
+            .AddJWTAuthentication(configuration);   // auth 
         return services;
     }
     public static IServiceCollection AddJWTAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -86,6 +89,28 @@ namespace Catalog.Infrastructure;
 
         services.AddSingleton(Options.Create(messageBrokerSettings));
 
+        // Azure Storage settings binding
+        var storageSettings = new AzureStorageSettings();
+        configuration.Bind(AzureStorageSettings.Section, storageSettings);
+        services.AddSingleton(Options.Create(storageSettings));
+        services.AddSingleton<IImageJobQueue, ImageJobQueue>();
+
+        return services;
+    }
+    // ----------  Azure Blob Storage ----------
+    public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Prefer connection string under section, or ConnectionStrings:AzureStorage
+        services.Configure<AzureStorageSettings>(
+       configuration.GetSection(AzureStorageSettings.Section));
+
+        services.AddSingleton(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<AzureStorageSettings>>().Value;
+            return new BlobServiceClient(settings.ConnectionString);
+        });
+        services.AddScoped<IBlobStorage, AzureBlobStorage>();
+
         return services;
     }
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
@@ -97,7 +122,7 @@ namespace Catalog.Infrastructure;
         services.AddScoped<IBooksRepository, BooksRepository>();
         services.AddScoped<ICategoriesRepository, CategoriesRepository>();
         services.AddScoped<IAuthorsRepository, AuthorsRepository>();
-      //  services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<CatalogDbContext>());
+        services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<CatalogDbContext>());
         return services;
     }
     // ---------- MassTransit  ---------- 
@@ -115,6 +140,7 @@ namespace Catalog.Infrastructure;
             x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
             {
                 o.UseSqlServer();
+                o.DisableInboxCleanupService();
                 o.UseBusOutbox();
 
             });
@@ -134,7 +160,7 @@ namespace Catalog.Infrastructure;
                 cfg.ConfigureEndpoints(context);
             });
         });
-    }
+   }
         return services;
     }
 }

@@ -1,0 +1,46 @@
+name: Image Processor CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Functions/ImageProcessor/**'
+      - '.github/workflows/image-processor-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Functions/ImageProcessor/**'
+      - '.github/workflows/image-processor-ci.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      ASPNETCORE_ENVIRONMENT: Test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET (with NuGet cache)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.sln
+            **/*.csproj
+            **/packages.lock.json
+            **/nuget.config
+
+      - name: Restore
+        run: dotnet restore Functions/ImageProcessor/src/ImageProcessor.Functions/ImageProcessor.Functions.csproj
+
+      - name: Build
+        run: dotnet build Functions/ImageProcessor/src/ImageProcessor.Functions/ImageProcessor.Functions.csproj --configuration Release --no-restore

@@ -1,0 +1,11 @@
+
+### Base variables
+@baseUrl = http://localhost:7000/identity/api/Authentication
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "admin@bookstore.local",
+  "password": "Change_me_123!"
+
+}

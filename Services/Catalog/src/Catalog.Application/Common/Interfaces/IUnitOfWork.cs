@@ -9,6 +9,6 @@ namespace Catalog.Application.Common.Interfaces
 
     public interface IUnitOfWork
     {
-        Task CommitChangesAsync();
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

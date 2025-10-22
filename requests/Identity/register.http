@@ -1,0 +1,14 @@
+
+
+### Base variables
+@baseUrl = http://localhost:7000/identity/api/Authentication
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "firstName": "book",
+  "lastName": "Store",
+  "email": "book@example",
+  "password": "Change_me_123!"
+
+}

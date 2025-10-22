@@ -15,14 +15,13 @@ public class BooksRepository : IBooksRepository
     private readonly CatalogDbContext _dbContext;
 
     public BooksRepository(CatalogDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    => _dbContext = dbContext;
+   
 
     public async Task AddBookAsync(Book book, CancellationToken ct = default)
     {
         await _dbContext.Books.AddAsync(book, ct);
-        await _dbContext.SaveChangesAsync();
+        //await _dbContext.SaveChangesAsync();
     }
 
     public async Task<bool> IsIsbnTakenAsync(string isbn, CancellationToken ct = default)
@@ -91,5 +90,11 @@ public class BooksRepository : IBooksRepository
 
     }
 
-  
+    public void Update(Book book)
+   =>
+        _dbContext.Books.Update(book);
+      
+   
+
+
 }
