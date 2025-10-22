@@ -91,47 +91,7 @@ public class Book : AggregateRoot<Guid>
 ---
 
 ## 🗺️ Architecture Diagram
-
-```mermaid
-flowchart LR
-    subgraph Client
-        U[User / Frontend]
-    end
-
-    U -->|JWT| G[Gateway API (YARP)]
-
-    subgraph Services
-        Iden[🪶 Identity API]
-        Cat[📚 Catalog API]
-        Cart[🛒 Cart API]
-        Img[🧱 Image Processor]
-    end
-
-    subgraph Infra
-        SQL[(SQL Server / SQLite)]
-        REDIS[(Redis)]
-        RB[🐇 RabbitMQ (MassTransit Outbox)]
-        BLOB[(Azure Blob Storage / Azurite)]
-    end
-
-    G --> Iden
-    G --> Cat
-    G --> Cart
-
-    Iden --> SQL
-    Cat --> SQL
-    Cat --> BLOB
-    Cat --> RB
-    Img --> RB
-    Img --> BLOB
-    Img --> Cat
-    Cart --> REDIS
-
-    classDef svc fill:#f3f7ff,stroke:#8aa3ff,stroke-width:1px;
-    classDef infra fill:#fff7e6,stroke:#f0b429,stroke-width:1px;
-    class Iden,Cat,Cart,Img svc;
-    class SQL,REDIS,RB,BLOB infra;
-```
+(planned for later)
 
 ---
 
