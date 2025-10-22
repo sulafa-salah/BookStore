@@ -25,7 +25,7 @@ builder.Services.AddOptions<ProcessorOptions>()
             throw new InvalidOperationException("AzureWebJobsStorage is not configured.");
     });
 
-// Core clients - now we need to resolve IOptions or use a factory
+// Core clients - resolve IOptions or use a factory
 builder.Services.AddSingleton(provider =>
 {
     var options = provider.GetRequiredService<IOptions<ProcessorOptions>>().Value;
