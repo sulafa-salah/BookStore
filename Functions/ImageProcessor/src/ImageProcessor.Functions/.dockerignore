@@ -23,6 +23,13 @@
 **/values.dev.yaml
 LICENSE
 README.md
+**/bin
+**/obj
+.git
+**/.vs
+**/.vscode
+**/*.user
+node_modules
 !**/.gitignore
 !.git/HEAD
 !.git/config

@@ -50,6 +50,7 @@ public class CategoriesController : ApiController
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> List([FromQuery] GetCategoriesRequest req, CancellationToken ct)
     {
         var listCategoriesResult = await _mediator.Send(new ListCategoriesQuery(

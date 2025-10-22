@@ -6,6 +6,7 @@ using Catalog.Infrastructure.IntegrationEvents.Settings;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Repositories;
 using Catalog.Infrastructure.Persistence.Storage.Azure;
+using Catalog.Infrastructure.Queues;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -27,11 +28,12 @@ namespace Catalog.Infrastructure;
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
         services
-           .AddConfigurations(configuration)       // bind options first
-            .AddPersistence(configuration)          // DbContext + repos
-            .AddMessaging(configuration, environment) // MassTransit/RabbitMQ
+             .AddMediatR()
+           .AddConfigurations(configuration)       
+            .AddPersistence(configuration)         
+            .AddMessaging(configuration, environment) 
             .AddStorage(configuration)              //  Blob Storage
-            .AddMediatR()                           // your current style
+                                   
             .AddJWTAuthentication(configuration);   // auth 
         return services;
     }
@@ -91,6 +93,7 @@ namespace Catalog.Infrastructure;
         var storageSettings = new AzureStorageSettings();
         configuration.Bind(AzureStorageSettings.Section, storageSettings);
         services.AddSingleton(Options.Create(storageSettings));
+        services.AddSingleton<IImageJobQueue, ImageJobQueue>();
 
         return services;
     }
@@ -119,7 +122,7 @@ namespace Catalog.Infrastructure;
         services.AddScoped<IBooksRepository, BooksRepository>();
         services.AddScoped<ICategoriesRepository, CategoriesRepository>();
         services.AddScoped<IAuthorsRepository, AuthorsRepository>();
-      //  services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<CatalogDbContext>());
+        services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<CatalogDbContext>());
         return services;
     }
     // ---------- MassTransit  ---------- 
@@ -137,6 +140,7 @@ namespace Catalog.Infrastructure;
             x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
             {
                 o.UseSqlServer();
+                o.DisableInboxCleanupService();
                 o.UseBusOutbox();
 
             });
@@ -156,7 +160,7 @@ namespace Catalog.Infrastructure;
                 cfg.ConfigureEndpoints(context);
             });
         });
-    }
+   }
         return services;
     }
 }

@@ -16,6 +16,10 @@ namespace Catalog.Contracts.Books;
      bool IsPublished,
      Guid CategoryId,
      IReadOnlyList<Guid> AuthorIds,
+      string? CoverBlob,
+    string? CoverUrl,
+    string? ThumbBlob,
+    string? ThumbUrl,
      DateTime CreatedAt,
      DateTime? UpdatedAt
  );

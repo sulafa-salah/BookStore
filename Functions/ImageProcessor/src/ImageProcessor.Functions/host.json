@@ -1,12 +1,20 @@
 {
-    "version": "2.0",
-    "logging": {
-        "applicationInsights": {
-            "samplingSettings": {
-                "isEnabled": true,
-                "excludedTypes": "Request"
-            },
-            "enableLiveMetricsFilters": true
-        }
+  "version": "2.0",
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      },
+      "enableLiveMetricsFilters": true
     }
+  },
+  "extensions": {
+    "queues": {
+      "maxDequeueCount": 5, //Max retries before poison queue
+      "visibilityTimeout": "00:00:30", // How long the message is hidden during processing
+      "batchSize": 1, // How many queue messages to process simultaneously, 1 ensures one image job at a time.
+      "newBatchThreshold": 0 // When to fetch new messages
+    }
+  }
 }

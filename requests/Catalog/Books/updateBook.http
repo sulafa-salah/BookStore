@@ -1,7 +1,6 @@
 @baseUrl = http://localhost:7000
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZmNiODI1OS1mZGJmLTRjNWYtYWRkYS1kMmNhNWIwNDNhNDMiLCJuYW1lIjoiU3lzdGVtIiwiZW1haWwiOiJhZG1pbkBib29rc3RvcmUubG9jYWwiLCJpZCI6IjVmY2I4MjU5LWZkYmYtNGM1Zi1hZGRhLWQyY2E1YjA0M2E0MyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzYwOTY0ODI4LCJpc3MiOiJJZGVudGl0eUJvb2tTdG9yZSIsImF1ZCI6IkJvb2tTdG9yZSJ9.1QyKWqLh8jO0xhkbHnuv_l6Xwifxf1d1bwKgzc2KgOo
-
-@bookId = 8f1ae9ec-eb91-4da6-8f16-60666aa4103a
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5OTU0Y2Q2MS04NWFlLTQyOWMtODQxNy1iZDAzMTVlZmEwY2EiLCJuYW1lIjoiU3lzdGVtIiwiZW1haWwiOiJhZG1pbkBib29rc3RvcmUubG9jYWwiLCJpZCI6Ijk5NTRjZDYxLTg1YWUtNDI5Yy04NDE3LWJkMDMxNWVmYTBjYSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzYxMDkzMTk0LCJpc3MiOiJJZGVudGl0eUJvb2tTdG9yZSIsImF1ZCI6IkJvb2tTdG9yZSJ9.85XJb6bOFnpXyI2t99uXfSzgKUgM7JG9TcudZYherdE
+@bookId = 29a0d4a7-4382-4a1a-a1fe-1823c20f92e6
 
 ###
 # Upload book cover (multipart/form-data)
@@ -10,8 +9,8 @@ Authorization: Bearer {{access_token}}
 Content-Type: multipart/form-data; boundary=BOUNDARY123
 
 --BOUNDARY123
-Content-Disposition: form-data; name="file"; filename="book.jfif"
-Content-Type: image/jpeg
+Content-Disposition: form-data; name="file"; filename="bookcover.png"
+Content-Type: image/png
 
-< ./requests/assets/cover.jfif
+< ./assets/bookcover.png
 --BOUNDARY123--

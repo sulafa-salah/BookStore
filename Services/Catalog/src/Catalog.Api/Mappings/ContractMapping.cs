@@ -19,6 +19,10 @@ public static class ContractMapping
             book.IsPublished,
             book.CategoryId,
             book.BookAuthors.Select(a => a.AuthorId).ToList(),
+             book.CoverBlobName,
+            CoverUrl: null,
+            book.ThumbBlobName,
+            ThumbUrl: null,
             book.CreatedAt,
             book.UpdatedAt
         );

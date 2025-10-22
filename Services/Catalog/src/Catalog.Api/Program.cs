@@ -1,4 +1,5 @@
 using Catalog.Api;
+using Catalog.Api.Middlewares;
 using Catalog.Application;  
 using Catalog.Infrastructure;
 using Catalog.Infrastructure.Persistence;
@@ -32,6 +33,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseInternalAuth();
 app.UseAuthentication();
 
 app.UseAuthorization();
@@ -44,7 +46,7 @@ if (!app.Environment.IsEnvironment("Testing"))
 
 app.Run();
 
-void ApplyMigration()
+async void ApplyMigration()
 {
     using (var scope = app.Services.CreateScope())
     {
@@ -53,6 +55,7 @@ void ApplyMigration()
         if (_db.Database.GetPendingMigrations().Count() > 0)
         {
             _db.Database.Migrate();
+            await CatalogDbContextSeeder.SeedAsync(_db);
         }
     }
 }

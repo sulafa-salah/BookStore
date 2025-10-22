@@ -130,6 +130,11 @@ public class Book : AggregateRoot, IAuditable
         UpdatedAt = DateTime.UtcNow;
         return Result.Success;
     }
+    public void SetThumbBlobName(string blobName)
+    {
+        ThumbBlobName = blobName;
+        UpdatedAt = DateTime.UtcNow;
+    }
     public void AddAuthor(Guid authorId)
     {
         if (_bookAuthors.Any(x => x.AuthorId == authorId)) return;

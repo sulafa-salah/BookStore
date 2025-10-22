@@ -5,6 +5,7 @@ using Catalog.Application.Authors.Queries.GetAuthor;
 using Catalog.Application.Common.Mappings;
 using Catalog.Contracts.Authors;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,6 +35,7 @@ namespace Catalog.Api.Controllers;
         }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> List([FromQuery] GetAuthorsRequest req, CancellationToken ct)
        => (await _mediator.Send(new ListAuthorsQuery(req.PageNumber, req.PageSize, req.Search, req.SortBy, req.SortDir), ct))
            .Match(paged => Ok(paged.ToResponse(a => new AuthorResponse(a.Id, a.Name, a.Biography,a.IsActive))), errors => Problem(errors));

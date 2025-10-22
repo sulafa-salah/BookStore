@@ -15,8 +15,8 @@ using System.Reflection;
 
 namespace Catalog.Infrastructure.Persistence;
 
-   public class CatalogDbContext : DbContext
-       {
+   public class CatalogDbContext : DbContext, IUnitOfWork
+{
      
         private readonly IPublisher _publisher;
         public DbSet<Category> Categories => Set<Category>();
@@ -38,9 +38,9 @@ namespace Catalog.Infrastructure.Persistence;
         modelBuilder.AddInboxStateEntity();
     }
 
-        
 
-       
+
+   
         public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
         // 1) Auditing
