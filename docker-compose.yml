@@ -63,6 +63,7 @@ services:
       - JwtSettings__Secret=${JWT_SECRET}
       - JwtSettings__Issuer=${JWT_ISSUER}
       - JwtSettings__Audience=${JWT_AUDIENCE}
+      - ConnectionStrings__Redis=redis:6379
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=BookStore_Catalog;User=sa;Password=${DB_SA_PASSWORD};Encrypt=False;TrustServerCertificate=True
       - RabbitMQ__Host=rabbitmq
       - RabbitMQ__Port=5672
@@ -73,7 +74,8 @@ services:
     depends_on:
       - sqlserver
       - rabbitmq
-      - azurite     
+      - azurite
+      - redis   
     networks: [bookstore-net]
 
   identity-api:

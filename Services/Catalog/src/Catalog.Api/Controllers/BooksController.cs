@@ -62,16 +62,16 @@ namespace Catalog.Api.Controllers;
         var result = await _mediator.Send(new GetBookQuery(bookId), ct);
 
         return result.Match(
-            b =>
+            dto =>
             {
-                var dto = b.MapToBook();
 
+                // API concern: enrich with URLs
                 var coverUrl = _blobStorage.TryGetSasUrl(_storage.Value.CoversContainer, dto.CoverBlob);
                 var thumbUrl = _blobStorage.TryGetSasUrl(_storage.Value.ThumbsContainer, dto.ThumbBlob);
 
-                // records are immutable; use `with`
-                var enriched = dto with { CoverUrl = coverUrl, ThumbUrl = thumbUrl };
-                return Ok(enriched);
+                // mapping
+                var response = dto.MapToBookResponse(coverUrl, thumbUrl);
+                return Ok(response);
             },
             errors => Problem(errors)
         );

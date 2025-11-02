@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Catalog.Application.SubcutaneousTests.Common;
 
@@ -34,7 +35,7 @@ public class MediatorFactory : WebApplicationFactory<IAssemblyMarker>, IAsyncLif
         // - Remove any existing CatalogDbContext registration the API added.
         // - Re-register it to use our single open SQLite connection.
         // - RemoveAll<T> extension comes from Microsoft.Extensions.DependencyInjection.Extensions.
-
+      
         builder.ConfigureTestServices(services =>
         {
             services
@@ -60,7 +61,7 @@ public class MediatorFactory : WebApplicationFactory<IAssemblyMarker>, IAsyncLif
                     cfgInMemory.ConfigureEndpoints(context);
                 });
             });
-      
+         
         });
     }
 
