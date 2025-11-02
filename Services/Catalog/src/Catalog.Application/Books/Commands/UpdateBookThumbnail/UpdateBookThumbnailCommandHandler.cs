@@ -1,4 +1,5 @@
-﻿using Catalog.Application.Common.Interfaces;
+﻿using Catalog.Application.Common.Constants;
+using Catalog.Application.Common.Interfaces;
 using ErrorOr;
 using MediatR;
 using System;
@@ -13,11 +14,13 @@ namespace Catalog.Application.Books.Commands.UpdateBookThumbnail;
     {
         private readonly IBooksRepository _booksRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICacheService _cache;
 
-    public UpdateBookThumbnailCommandHandler(IBooksRepository booksRepository,IUnitOfWork unitOfWork)
+    public UpdateBookThumbnailCommandHandler(IBooksRepository booksRepository,IUnitOfWork unitOfWork,ICacheService cache)
     {
         _booksRepository= booksRepository;
         _unitOfWork = unitOfWork;
+        _cache = cache;
     }
 
     public async Task<ErrorOr<Success>> Handle(UpdateBookThumbnailCommand cmd, CancellationToken ct)
@@ -28,6 +31,9 @@ namespace Catalog.Application.Books.Commands.UpdateBookThumbnail;
             book.SetThumbBlobName($"thumbs/{cmd.BookId}.jpg"); 
         _booksRepository.Update(book);
      await _unitOfWork.SaveChangesAsync();
+
+        // cache invalidation
+        await _cache.RemoveAsync(CacheKeys.Book(cmd.BookId), ct);
         return Result.Success;
         }
     }

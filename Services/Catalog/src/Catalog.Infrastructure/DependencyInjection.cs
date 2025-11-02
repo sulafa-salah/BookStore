@@ -2,6 +2,8 @@
 using Azure.Storage.Blobs;
 using Catalog.Application.Common.Interfaces;
 using Catalog.Infrastructure.Authentication.TokenSetting;
+using Catalog.Infrastructure.Caching;
+using Catalog.Infrastructure.Caching.Redis;
 using Catalog.Infrastructure.IntegrationEvents.Settings;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Repositories;
@@ -11,6 +13,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,6 +22,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
+using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 
 
@@ -33,7 +39,7 @@ namespace Catalog.Infrastructure;
             .AddPersistence(configuration)         
             .AddMessaging(configuration, environment) 
             .AddStorage(configuration)              //  Blob Storage
-                                   
+            .AddCaching(configuration,environment)
             .AddJWTAuthentication(configuration);   // auth 
         return services;
     }
@@ -161,6 +167,51 @@ namespace Catalog.Infrastructure;
             });
         });
    }
+        return services;
+    }
+    // ---------- Caching (FusionCache + Redis) ----------
+    public static IServiceCollection AddCaching(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+    {
+        if (environment.IsEnvironment("Testing"))
+        {
+            // register the in-memory cache for testing
+            services.AddSingleton<ICacheService, InMemoryTestCacheService>();
+            return services;
+        }
+        var redisSettings = configuration
+     .GetSection("Redis")
+     .Get<RedisOptions>()!;
+        var redisConnection = redisSettings.ConnectionString;
+       
+        services
+            .AddFusionCache() 
+            .WithSerializer(
+               new FusionCacheSystemTextJsonSerializer()
+            )
+            .WithDistributedCache(
+                new RedisCache(new RedisCacheOptions
+                {
+                    Configuration = redisConnection
+                })
+            )
+            .WithBackplane(
+                new RedisBackplane(new RedisBackplaneOptions
+                {
+                    Configuration = redisConnection
+                })
+            )
+            .WithDefaultEntryOptions(opts =>
+            {
+                // default cache policy
+                opts.SetDuration(TimeSpan.FromMinutes(5));
+                opts.SetFailSafe(true);
+                //opts.SetFailSafeMaxDuration(TimeSpan.FromMinutes(30));
+                //opts.SetJitterMaxDuration(TimeSpan.FromSeconds(10));
+            });
+
+        
+        services.AddScoped<ICacheService, FusionCacheService>();
+
         return services;
     }
 }

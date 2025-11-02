@@ -1,4 +1,5 @@
-﻿using Catalog.Contracts.Books;
+﻿using Catalog.Application.Common.Models;
+using Catalog.Contracts.Books;
 using Catalog.Domain.BookAggregate;
 using Catalog.Domain.Common.ValueObjects;
 
@@ -25,6 +26,30 @@ public static class ContractMapping
             ThumbUrl: null,
             book.CreatedAt,
             book.UpdatedAt
+        );
+    }
+    public static BookResponse MapToBookResponse(
+           this BookDto dto,
+           string? coverUrl,
+           string? thumbUrl)
+    {
+        return new BookResponse(
+            dto.Id,
+            dto.Title,
+            dto.Description,
+            dto.Isbn,
+            dto.Sku,
+            dto.PriceAmount,
+            dto.PriceCurrency,
+            dto.IsPublished,
+            dto.CategoryId,
+            dto.AuthorIds,
+            dto.CoverBlob,
+            coverUrl,
+            dto.ThumbBlob,
+            thumbUrl,
+            dto.CreatedAt,
+            dto.UpdatedAt
         );
     }
 }

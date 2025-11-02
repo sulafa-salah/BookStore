@@ -1,4 +1,5 @@
-﻿using Catalog.Domain.BookAggregate;
+﻿using Catalog.Application.Common.Models;
+using Catalog.Domain.BookAggregate;
 using ErrorOr;
 using MediatR;
 using System;
@@ -8,4 +9,4 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Catalog.Application.Books.Queries.GetBook;
-    public  record GetBookQuery(Guid BookId) : IRequest<ErrorOr<Book>>;
+    public  record GetBookQuery(Guid BookId) : IRequest<ErrorOr<BookDto>>;

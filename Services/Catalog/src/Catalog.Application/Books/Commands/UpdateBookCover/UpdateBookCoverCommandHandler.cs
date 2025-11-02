@@ -1,4 +1,5 @@
-﻿using Catalog.Application.Common.Interfaces;
+﻿using Catalog.Application.Common.Constants;
+using Catalog.Application.Common.Interfaces;
 using ErrorOr;
 using MediatR;
 
@@ -9,23 +10,25 @@ namespace Catalog.Application.Books.Commands.UpdateBookCover;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBooksRepository books;
     private readonly IBlobStorage blobStorage;
+    private readonly ICacheService _cache;
 
-    public UpdateBookCoverHandler(IUnitOfWork unitOfWork, IBooksRepository books, IBlobStorage blobStorage)
+    public UpdateBookCoverHandler(IUnitOfWork unitOfWork, IBooksRepository books, IBlobStorage blobStorage, ICacheService cache)
     {
         _unitOfWork = unitOfWork;
         this.books = books;
         this.blobStorage = blobStorage;
+        _cache = cache;
     }
-    public async Task<ErrorOr<(Guid BookId, string BlobName)>> Handle(UpdateBookCoverCommand req, CancellationToken ct)
+    public async Task<ErrorOr<(Guid BookId, string BlobName)>> Handle(UpdateBookCoverCommand cmd, CancellationToken ct)
     {
-        var book = await books.GetByIdAsync(req.BookId, ct);
+        var book = await books.GetByIdAsync(cmd.BookId, ct);
         if (book is null)
             return Error.NotFound("Book.NotFound", "Book not found.");
 
         // Accept the real file extension but normalize a few variants
-        var ext = string.IsNullOrWhiteSpace(req.FileExtension)
+        var ext = string.IsNullOrWhiteSpace(cmd.FileExtension)
             ? ".jpg" // fallback only if unknown
-            : req.FileExtension.ToLowerInvariant();
+            : cmd.FileExtension.ToLowerInvariant();
 
         if (!ext.StartsWith(".")) ext = "." + ext;
 
@@ -38,12 +41,12 @@ namespace Catalog.Application.Books.Commands.UpdateBookCover;
             return Error.Validation("File.Extension", $"Unsupported image format: {ext}");
 
         // store under "covers/"
-        var blobName = $"covers/{req.BookId}{ext}";
+        var blobName = $"covers/{cmd.BookId}{ext}";
 
         var savedBlobName = await blobStorage.UploadAsync(
-            req.Content,
-            req.ContentType,
-            req.ContainerName, // must be "media"
+            cmd.Content,
+            cmd.ContentType,
+            cmd.ContainerName, // must be "media"
             blobName,
             ct);
 
@@ -53,6 +56,8 @@ namespace Catalog.Application.Books.Commands.UpdateBookCover;
         books.Update(book);
 
         await _unitOfWork.SaveChangesAsync();
+        // cache invalidation
+        await _cache.RemoveAsync(CacheKeys.Book(cmd.BookId), ct);
         return (book.Id, savedBlobName);// e.g. "covers/{id}.jpg"
     }
 }
